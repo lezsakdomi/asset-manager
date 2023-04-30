@@ -1,0 +1,31 @@
+asset-item:not(.owned) {
+    color: gray;
+}
+
+asset-item.otr-waiting {
+    color: orange;
+}
+
+#only-my-assets:checked ~ #assets > asset-item.not-owned:not(.otr-waiting) {
+    display: none;
+}
+
+asset-item:not(.otr-waiting) #asset-outgoing-otr-reject {
+    display: none;
+}
+
+asset-item:is(:not(.not-owned), .otr-waiting) #asset-item-otr-button {
+    display: none;
+}
+
+asset-item:not(.not-owned) #asset-item-otr-email {
+    display: none;
+}
+
+:is(asset-otr, asset-item) pre {
+    display: inline;
+}
+
+asset-otr li {
+    display: block;
+}

@@ -1,8 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    function authenticated(request) {
+        return request.auth != null
     }
-  }
+
+    function currentUserSpecified(request, resource) {
+        return authenticated(request)
+            //&& request.auth.token.email_verified
+            && request.auth.token.email == resource.data.email
+    }
+
+    function justRejects(request, resource) {
+        return (request.resource.data.diff(resource.data).affectedKeys().size() == 1)
+            && (request.resource.data['rejected'] == true)
+    }
+
+    match /databases/{database}/documents {
+        match /assets/{assetId} {
+            function checkAssetUpdate(request, resource) {
+                let newOwnerId = request.resource.data['latestOwnerId'];
+                let newOwnerRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(newOwnerId);
+                let newOwner = getAfter(newOwnerRef);
+                return authenticated(request)
+                    && (!('latestOwnerEmail' in resource.data) || resource.data['latestOwnerEmail'] == request.auth.token.email)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latestOwnerId', 'latestOwnerEmail'])
+                    && request.resource.data['latestOwnerEmail'] == newOwner.data.email
+                    && newOwner.data['since'] == request.time;
+            }
+
+            allow read: if authenticated(request);
+            allow update: if checkAssetUpdate(request, resource);
+
+            function assetRef() {
+                return /databases/$(database)/documents/assets/$(assetId)
+            }
+
+            match /owners/{ownerId} {
+                function checkOwnerChain(request, resource, asset) {
+                    let previousOwnerId = asset.data['latestOwnerId'];
+                    let previousOwnerRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(previousOwnerId);
+                    let baseOtrId = resource.data['otrId'];
+                    let baseOtrRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(previousOwnerId)/ownership-transfer-requests/$(baseOtrId);
+                    return get(previousOwnerRef).data['email'] == request.auth.token.email
+                        && resource.data['previousOwnerId'] == previousOwnerId
+                        && get(baseOtrRef).data['email'] == resource.data['email'];
+                }
+                function checkOwnerCreate(request, resource) {
+                    let asset = get(assetRef());
+                    return authenticated(request)
+                        && (!('latestOwnerId' in asset.data) || checkOwnerChain(request, resource, asset))
+                        && resource.data['since'] == request.time
+                        && getAfter(assetRef()).data['latestOwnerId'] == ownerId;
+                }
+
+                allow read: if authenticated(request);
+                allow create: if checkOwnerCreate(request, request.resource);
+                allow update, delete: if false;
+
+                function ownerRef() {
+                    return /databases/$(database)/documents/assets/$(assetId)/owners/$(ownerId)
+                }
+
+                match /ownership-transfer-requests/{otrId} {
+                    allow read: if authenticated(request);
+                    allow create: if currentUserSpecified(request, request.resource)
+                        && request.resource.data['at'] == request.time;
+                    allow update: if (currentUserSpecified(request, resource)
+                        || currentUserSpecified(request, get(ownerRef())))
+                        && justRejects(request, resource);
+                    allow delete: if false;
+                }
+            }
+        }
+    }
 }
