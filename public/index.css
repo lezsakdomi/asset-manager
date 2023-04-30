@@ -10,7 +10,7 @@ asset-item.otr-waiting {
     color: orange;
 }
 
-#only-my-assets:checked ~ #assets > asset-item.not-owned:not(.otr-waiting) {
+#only-my-assets:checked ~ #assets > asset-item:not(.owned):not(.otr-waiting) {
     display: none;
 }
 
