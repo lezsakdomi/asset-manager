@@ -14,7 +14,7 @@
     <template id="asset-item">
         <li>
             <span id="asset-item-name"></span>
-            <pre id="asset-item-owner-email"></pre>
+            <span id="asset-item-owner"></span>
             <a id="asset-item-otr-button">📥 Elkérés</a>
             <a id="asset-outgoing-otr-reject" class="negative">✖️ Visszavonás</a>
             <ul id="asset-item-otrs"></ul>
@@ -22,11 +22,15 @@
     </template>
     <template id="asset-otr">
         <li>
-            &rarr;
-            <pre id="asset-otr-email"></pre>
+            &rarr; <span id="asset-otr-user"></span>
             <a id="asset-otr-accept" class="positive">✔️ Elfogadás</a>
             <a id="asset-otr-reject" class="negative">✖️ Elutasítás</a>
         </li>
+    </template>
+    <template id="user-info">
+        <pre id="user-info-uid"></pre>
+        <i id="user-info-name"></i>
+        <a id="user-info-call" class="inline">📞</a>
     </template>
 </head>
 <body>

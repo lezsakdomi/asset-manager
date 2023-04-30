@@ -42,6 +42,7 @@ export const authenticated = Promise.all([
             signInOptions: [
                 window.firebase.auth.EmailAuthProvider.PROVIDER_ID,
                 window.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                window.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
             ],
             callbacks: {
                 signInSuccessWithAuthResult(authResult, redirectUrl) {

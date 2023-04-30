@@ -1,3 +1,7 @@
+ul#asset-item-otrs {
+    padding-inline-start: 0;
+}
+
 asset-item:not(.owned) {
     color: gray;
 }
@@ -18,7 +22,7 @@ asset-item:is(:not(.not-owned), .otr-waiting) #asset-item-otr-button {
     display: none;
 }
 
-asset-item:not(.not-owned) #asset-item-otr-email {
+asset-item:not(.not-owned) #asset-item-owner {
     display: none;
 }
 
@@ -28,4 +32,12 @@ asset-item:not(.not-owned) #asset-item-otr-email {
 
 asset-otr li {
     display: block;
+}
+
+user-info.has-name #user-info-uid {
+    display: none;
+}
+
+#user-info-call:not([href]) {
+    display: none !important;
 }

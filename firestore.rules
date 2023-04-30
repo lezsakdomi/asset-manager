@@ -2,12 +2,12 @@ rules_version = '2';
 service cloud.firestore {
     function authenticated(request) {
         return request.auth != null
+            && request.auth.token.member
     }
 
     function currentUserSpecified(request, resource) {
         return authenticated(request)
-            //&& request.auth.token.email_verified
-            && request.auth.token.email == resource.data.email
+            && request.auth.uid == resource.data.uid
     }
 
     function justRejects(request, resource) {
@@ -16,15 +16,19 @@ service cloud.firestore {
     }
 
     match /databases/{database}/documents {
+        match /users/{userId} {
+            allow read: if authenticated(request);
+        }
+
         match /assets/{assetId} {
             function checkAssetUpdate(request, resource) {
                 let newOwnerId = request.resource.data['latestOwnerId'];
                 let newOwnerRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(newOwnerId);
                 let newOwner = getAfter(newOwnerRef);
                 return authenticated(request)
-                    && (!('latestOwnerEmail' in resource.data) || resource.data['latestOwnerEmail'] == request.auth.token.email)
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latestOwnerId', 'latestOwnerEmail'])
-                    && request.resource.data['latestOwnerEmail'] == newOwner.data.email
+                    && (!('latestOwnerUid' in resource.data) || resource.data['latestOwnerUid'] == request.auth.uid)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latestOwnerId', 'latestOwnerUid'])
+                    && request.resource.data['latestOwnerUid'] == newOwner.data.uid
                     && newOwner.data['since'] == request.time;
             }
 
@@ -41,9 +45,9 @@ service cloud.firestore {
                     let previousOwnerRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(previousOwnerId);
                     let baseOtrId = resource.data['otrId'];
                     let baseOtrRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(previousOwnerId)/ownership-transfer-requests/$(baseOtrId);
-                    return get(previousOwnerRef).data['email'] == request.auth.token.email
+                    return get(previousOwnerRef).data['uid'] == request.auth.uid
                         && resource.data['previousOwnerId'] == previousOwnerId
-                        && get(baseOtrRef).data['email'] == resource.data['email'];
+                        && get(baseOtrRef).data['uid'] == resource.data['uid'];
                 }
                 function checkOwnerCreate(request, resource) {
                     let asset = get(assetRef());

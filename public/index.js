@@ -16,6 +16,59 @@ import {
 import {ulid} from "https://unpkg.com/ulid@2.3.0/dist/index.esm.js";
 import {auth} from "./firebaseAuth.js";
 
+class UserInfo extends HTMLElement {
+    constructor(uid) {
+        super();
+        this.docRef = doc(db, 'users', uid);
+        this.setup = () => {
+            const fr = document.getElementById('user-info').content.cloneNode(true);
+            this.appendChild(fr);
+            this.querySelector('#user-info-uid').innerText = uid;
+            this.setup = noop;
+        };
+    }
+
+    connectedCallback() {
+        this.setup();
+        this.removeSnapshotListener = onSnapshot(this.docRef, (dss) => {
+            if (dss.exists()) {
+                this.classList.add('existing');
+
+                const {displayName, phoneNumber} = dss.data();
+
+                if (displayName) {
+                    this.classList.add('has-name');
+                    this.querySelector('#user-info-name').innerText = displayName;
+                } else {
+                    this.classList.remove('has-name');
+                    this.querySelector('#user-info-name').innerText = "";
+                }
+
+                if (phoneNumber) {
+                    this.querySelector('#user-info-call').setAttribute('href', `tel://${phoneNumber}`);
+                } else {
+                    this.querySelector('#user-info-call').removeAttribute('href');
+                }
+            } else {
+                this.classList.remove('existing');
+                this.classList.remove('has-name');
+                this.querySelector('#user-info-name').innerText = "";
+                this.querySelector('#user-info-call').removeAttribute('href');
+            }
+        });
+    }
+
+    disconnectedCallback() {
+        this.removeSnapshotListener();
+        this.classList.remove('existing');
+        this.classList.remove('has-name');
+        this.querySelector('#user-info-name').innerText = "";
+        this.querySelector('#user-info-call').removeAttribute('href');
+    }
+}
+
+customElements.define('user-info', UserInfo);
+
 class AssetOtr extends HTMLElement {
     constructor(doc) {
         super();
@@ -24,8 +77,8 @@ class AssetOtr extends HTMLElement {
         this.setup = () => {
             const fr = document.getElementById('asset-otr').content.cloneNode(true);
             this.appendChild(fr);
-            const {email} = this.doc.data();
-            this.querySelector('#asset-otr-email').innerText = email;
+            const {uid} = this.doc.data();
+            this.querySelector('#asset-otr-user').replaceChildren(new UserInfo(uid));
             this.querySelector('#asset-otr-accept').addEventListener('click', (event) => {
                 this.acceptOtr().catch(console.error);
                 event.preventDefault();
@@ -41,19 +94,7 @@ class AssetOtr extends HTMLElement {
     async acceptOtr() {
         try {
             this.querySelector('#asset-otr-accept').classList.add('wip');
-            const {email} = this.doc.data()
-            // await runTransaction(db, async (transaction) => {
-            //     const id = ulid(Date.now());
-            //     const assetDocRef = this.doc.ref.parent.parent.parent
-            //     const newOwnerDocRef = await transaction.set(doc(assetDocRef, id), {
-            //         since: serverTimestamp(),
-            //         email: this.doc.data().email,
-            //         otrRef: this.doc.ref,
-            //     })
-            //     await transaction.update(assetDocRef, {
-            //         latestOwnerRef: newOwnerDocRef,
-            //     })
-            // })
+            const {uid} = this.doc.data();
             const batch = writeBatch(db);
             const ownerDocRef = this.doc.ref.parent.parent;
             const assetDocRef = this.doc.ref.parent.parent.parent.parent;
@@ -61,7 +102,7 @@ class AssetOtr extends HTMLElement {
             const newOwnerRef = doc(assetDocRef, 'owners', newOwnerId);
             batch.set(newOwnerRef, {
                 since: serverTimestamp(),
-                email: email,
+                uid,
                 previousOwnerId: ownerDocRef.id,
                 otrId: this.doc.id,
                 // otrRef: this.doc.ref,
@@ -69,7 +110,7 @@ class AssetOtr extends HTMLElement {
             batch.update(assetDocRef, {
                 latestOwnerId: newOwnerId,
                 // latestOwnerRef: newOwnerRef,
-                latestOwnerEmail: email,
+                latestOwnerUid: uid,
             });
             await batch.commit();
         } finally {
@@ -131,7 +172,7 @@ class AssetItem extends HTMLElement {
             try {
                 this.querySelector('#asset-item-otr-button').classList.add('wip');
                 await addDoc(collection(this.ownerDoc.ref, 'ownership-transfer-requests'), {
-                    email: auth.currentUser.email,
+                    uid: auth.currentUser.uid,
                     rejected: false,
                     at: serverTimestamp(),
                 });
@@ -162,9 +203,9 @@ class AssetItem extends HTMLElement {
             if (qss.docs.length) {
                 const [doc] = qss.docs;
                 this.ownerDoc = doc;
-                const {email} = doc.data();
-                this.querySelector('#asset-item-owner-email').innerText = email;
-                if (email === auth.currentUser.email) {
+                const {uid} = doc.data();
+                this.querySelector('#asset-item-owner').replaceChildren(new UserInfo(uid));
+                if (uid === auth.currentUser.uid) {
                     this.classList.add('owned');
                     this.classList.remove('not-owned');
                     const otrQuery = query(collection(doc.ref, 'ownership-transfer-requests'), where('rejected', '==', false));
@@ -201,7 +242,7 @@ class AssetItem extends HTMLElement {
                     this.classList.remove('owned');
                     const otrQuery = query(collection(doc.ref, 'ownership-transfer-requests'),
                         where('rejected', '==', false),
-                        where('email', '==', auth.currentUser.email));
+                        where('uid', '==', auth.currentUser.uid));
                     const removeOtrListener = onSnapshot(otrQuery, (qss) => {
                         this.outgoingOtrDocs = qss.docs;
                         if (qss.docs.length) {
@@ -228,7 +269,8 @@ class AssetItem extends HTMLElement {
         this.ownerDoc = undefined;
         this.classList.remove('owned');
         this.classList.remove('not-owned');
-        this.querySelector('#asset-item-owner-email').innerText = ""
+        this.querySelector('#asset-item-owner-name').innerText = "";
+        this.querySelector('#asset-item-call').removeAttribute('href');
         this.removeOwnerListener();
         this.removeOtrListener();
     }
