@@ -26,6 +26,7 @@ import {UserInfo, AssetOtr, AssetItem} from "../elements.js";
     const docRef = window.docRef = doc(collection(db, 'assets'), assetId);
     onSnapshot(docRef, (dss) => {
         window.dss = dss;
+        document.querySelector('#loader').style.display = 'none';
         document.getElementById('asset-container').replaceChildren(new AssetItem(dss));
     });
 })();

@@ -21,6 +21,7 @@ import {UserInfo, AssetOtr, AssetItem} from "./elements.js";
 Promise.all([domContentLoaded, authenticated]).then(() => {
     const assetQuery = query(collection(db, 'assets'), where('available', '==', true));
     onSnapshot(assetQuery, (assetsSnapshot) => {
+        document.querySelector('#loader').style.display = 'none';
         assetsSnapshot.docChanges().forEach(assetChange => {
             const {doc} = assetChange;
             switch (assetChange.type) {
