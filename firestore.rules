@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
     function authenticated(request) {
         return request.auth != null
-            && request.auth.token.member
+            && get(/users/$(request.auth.uid)).data['customClaims']['member']
     }
 
     function currentUserSpecified(request, resource) {
