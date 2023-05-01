@@ -7,6 +7,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
 import {db} from "./firebaseFirestore.js";
 import {ulid} from "https://unpkg.com/ulid@2.3.0/dist/index.esm.js";
+import auth from "./firebaseAuth.js";
 
 function noop() {
     // noop
@@ -160,6 +161,11 @@ export class AssetItem extends HTMLElement {
                 this.cancelOwnershipTransferRequest().catch(console.error);
                 event.preventDefault();
             });
+            if (this.querySelector('#asset-item-take-button'))
+                this.querySelector('#asset-item-take-button').addEventListener('click', event => {
+                    this.take().catch(console.error);
+                    event.preventDefault();
+                })
             this.setup = noop;
         };
     }
@@ -200,6 +206,26 @@ export class AssetItem extends HTMLElement {
         }
     }
 
+    async take() {
+        try {
+            this.querySelector('#asset-item-take-button').classList.add('wip');
+            const batch = writeBatch(db);
+            const newOwnerId = ulid(Date.now());
+            const newOwnerRef = doc(this.doc.ref, 'owners', newOwnerId);
+            batch.set(newOwnerRef, {
+                since: serverTimestamp(),
+                uid: auth.currentUser.uid,
+            });
+            batch.update(this.doc.ref, {
+                latestOwnerId: newOwnerId,
+                latestOwnerUid: auth.currentUser.uid,
+            });
+            await batch.commit();
+        } finally {
+            this.querySelector('#asset-item-take-button').classList.remove('wip');
+        }
+    }
+
     connectedCallback() {
         this.setup();
         const ownerQuery = query(collection(this.doc.ref, 'owners'), orderBy('since', 'desc'), limit(1));
@@ -208,6 +234,7 @@ export class AssetItem extends HTMLElement {
             this.removeOtrs();
             this.ownerDoc = undefined;
             if (qss.docs.length) {
+                this.classList.remove('no-owner');
                 const [doc] = qss.docs;
                 this.ownerDoc = doc;
                 const {uid} = doc.data();
@@ -272,6 +299,7 @@ export class AssetItem extends HTMLElement {
                     };
                 }
             } else {
+                this.classList.add('no-owner');
                 this.classList.remove('owned');
                 this.classList.remove('not-owned');
                 this.querySelector('#asset-item-owner').replaceChildren(new UserInfo(null));
@@ -283,6 +311,7 @@ export class AssetItem extends HTMLElement {
         this.ownerDoc = undefined;
         this.classList.remove('owned');
         this.classList.remove('not-owned');
+        this.classList.remove('no-owner');
         if (this.querySelector('#asset-item-ownership-loader')) {
             this.querySelector('#asset-item-ownership-loader').classList.remove('load-complete');
         }

@@ -54,5 +54,9 @@ user-info.has-name #user-info-uid {
 }
 
 .existing .when-not-existing {
-    display: none;
+    display: none !important;
+}
+
+asset-item:not(.no-owner) #asset-item-take-button {
+    display: none !important;
 }
