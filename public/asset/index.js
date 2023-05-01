@@ -22,11 +22,13 @@ import {UserInfo, AssetOtr, AssetItem} from "../elements.js";
     await domContentLoaded;
     const assetId = decodeURI(location.hash.slice(1));
     document.getElementById('asset-id').innerText = assetId;
+    document.title = assetId;
     await authenticated;
     const docRef = window.docRef = doc(collection(db, 'assets'), assetId);
     let previousData;
     onSnapshot(docRef, (dss) => {
         window.dss = dss;
+        document.title = dss.data().name;
         if (previousData && !Object.entries(dss.data())
             .filter(([k, v]) => previousData[k] !== v)
             .filter(([k, v]) => !k.startsWith('latest'))
