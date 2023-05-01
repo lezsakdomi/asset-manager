@@ -3,6 +3,7 @@ service cloud.firestore {
     function authenticated(request) {
         return request.auth != null
             && get(/users/$(request.auth.uid)).data['customClaims']['member']
+            && get(/users/$(request.auth.uid)).data['customClaims']['activated']
     }
 
     function currentUserSpecified(request, resource) {
@@ -17,7 +18,10 @@ service cloud.firestore {
 
     match /databases/{database}/documents {
         match /users/{userId} {
-            allow read: if authenticated(request);
+            allow read: if authenticated(request) || request.auth.uid == userId;
+            allow update: if request.auth.uid == userId
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customClaims'])
+                && request.resource.data['customClaims'].diff(resource.data['customClaims']).affectedKeys().hasOnly(['activated']);
         }
 
         match /assets/{assetId} {

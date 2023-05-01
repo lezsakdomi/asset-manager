@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fiók aktiválás</title>
+
+    <script defer src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css"/>
+    <script type="module" src="/activate/index.js"></script>
+    <link rel="stylesheet" href="/screen.css">
+    <link rel="stylesheet" href="/activate/index.css">
+    <style id="auth-style">
+        .when-activated {
+            display: none;
+        }
+        .unless-activated {
+            display: none;
+        }
+    </style>
+    <style id="activate-style"></style>
+</head>
+<body>
+
+<div id="message">
+    <h2><code id="asset-id"></code></h2>
+    <div class="if-unauthenticated">
+        <h3>A fiókod aktiválásához jelentkezz be!</h3>
+    </div>
+    <div class="if-authenticated">
+        <span class="when-activated">
+            <p>A fiókod aktív</p>
+            <a href="/">Vissza a kezdőoldalra</a>
+        </span>
+        <span class="unless-activated">
+            <p>GDPR: A fiókod aktiválásával elfogadod, hogy az itt kezelt adataidat az összes tag láthatja.</p>
+            <a id="activate-button">Elfogadom és aktiválom a fiókom</a>
+        </span>
+    </div>
+    <div id="firebaseui-auth-container"></div>
+</div>
+
+</body>
+</html>
