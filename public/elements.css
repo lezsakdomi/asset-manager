@@ -1,0 +1,62 @@
+ul#asset-item-otrs {
+    padding-inline-start: 0;
+}
+
+asset-item:not(.owned) {
+    color: gray;
+}
+
+asset-item.otr-waiting {
+    color: orange;
+}
+
+#only-my-assets:checked ~ #assets > asset-item:not(.owned):not(.otr-waiting) {
+    display: none !important;
+}
+
+asset-item:not(.otr-waiting) #asset-outgoing-otr-reject {
+    display: none !important;
+}
+
+asset-item:is(:not(.not-owned), .otr-waiting) #asset-item-otr-button {
+    display: none !important;
+}
+
+asset-item:not(.not-owned) #asset-item-owner {
+    display: none !important;
+}
+
+:is(asset-otr, asset-item) pre {
+    display: inline;
+}
+
+asset-otr li {
+    display: block;
+}
+
+#user-info-call {
+    float: right;
+    margin-top: -5px !important;
+}
+
+user-info.has-name #user-info-uid {
+    display: none !important;
+}
+
+#user-info-call:not([href]) {
+    display: none !important;
+}
+
+#loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.existing .when-not-existing {
+    display: none !important;
+}
+
+asset-item:not(.no-owner) #asset-item-take-button {
+    display: none !important;
+}
