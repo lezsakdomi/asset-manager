@@ -3,6 +3,7 @@ import {auth} from "./firebaseAuth.js";
 import "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 import "./firebaseApp.js";
 import {collection, doc, onSnapshot, getDoc} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
+import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
 function updateStyle({authenticated, registered, activated, member}) {
     const styleElement = document.getElementById('auth-style');
@@ -67,6 +68,13 @@ function updateStyle({authenticated, registered, activated, member}) {
     }
 }
 
+const initialAuthState = new Promise((resolve, reject) => {
+    const stopAuthStateChanges = onAuthStateChanged(auth, user => {
+        stopAuthStateChanges()
+        resolve(user)
+    })
+})
+
 export const authenticated = Promise.all([
     domContentLoaded,
     (async () => {
@@ -74,7 +82,7 @@ export const authenticated = Promise.all([
         await import("https://www.gstatic.com/firebasejs/9.21.0/firebase-auth-compat.js");
         await import("/__/firebase/init.js?useEmulator=" + (window.location.hostname === "localhost"));
     })()
-]).then(() => {
+]).then(async () => {
     console.assert(window.firebase && window.firebase.auth());
 
     console.assert(window.firebaseui && window.firebaseui.auth);
@@ -83,34 +91,40 @@ export const authenticated = Promise.all([
 
     updateStyle({authenticated: false});
 
-    return new Promise((resolve, reject) => {
-        const ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
-        window.authUi = ui;
-        window.auth = auth;
-        ui.start('#firebaseui-auth-container', {
-            signInFlow: 'popup',
-            signInOptions: [
-                window.firebase.auth.EmailAuthProvider.PROVIDER_ID,
-                window.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                window.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-            ],
-            callbacks: {
-                signInSuccessWithAuthResult(authResult, redirectUrl) {
-                    updateStyle({authenticated: true});
-                    resolve(authResult);
-                    import("./firebaseFirestore.js").then(({db}) => {
-                        onSnapshot(doc(collection(db, 'users'), auth.currentUser.uid), dss => {
-                            if (dss.data()) {
-                                const {customClaims: {member = false, activated = false} = {}} = dss.data();
-                                updateStyle({authenticated: true, member, activated, registered: true});
-                            } else {
-                                updateStyle({authenticated: true, registered: false});
-                            }
-                        });
-                    });
-                    return false;
+    if (!await initialAuthState) {
+        await window.firebase.auth().setPersistence(window.firebase.auth.Auth.Persistence.SESSION);
+        return new Promise((resolve, reject) => {
+            const ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
+            window.authUi = ui;
+            window.auth = auth;
+            ui.start('#firebaseui-auth-container', {
+                signInFlow: 'popup',
+                signInOptions: [
+                    window.firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                    window.firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                    window.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+                ],
+                callbacks: {
+                    signInSuccessWithAuthResult(authResult, redirectUrl) {
+                        updateStyle({authenticated: true});
+                        resolve(authResult);
+                        return false;
+                    },
                 },
-            },
+            });
+        });
+    }
+});
+
+authenticated.then(() => {
+    import("./firebaseFirestore.js").then(({db}) => {
+        onSnapshot(doc(collection(db, 'users'), auth.currentUser.uid), dss => {
+            if (dss.data()) {
+                const {customClaims: {member = false, activated = false} = {}} = dss.data();
+                updateStyle({authenticated: true, member, activated, registered: true});
+            } else {
+                updateStyle({authenticated: true, registered: false});
+            }
         });
     });
-});
+})
