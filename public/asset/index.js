@@ -24,9 +24,21 @@ import {UserInfo, AssetOtr, AssetItem} from "../elements.js";
     document.getElementById('asset-id').innerText = assetId;
     await authenticated;
     const docRef = window.docRef = doc(collection(db, 'assets'), assetId);
+    let previousData;
     onSnapshot(docRef, (dss) => {
         window.dss = dss;
+        if (previousData && !Object.entries(dss.data())
+            .filter(([k, v]) => previousData[k] !== v)
+            .filter(([k, v]) => !k.startsWith('latest'))
+            .length) {
+            return;
+        } else {
+            console.log(previousData && Object.entries(dss.data())
+                .filter(([k, v]) => previousData[k] !== v)
+                .filter(([k, v]) => !k.startsWith('latest')));
+        }
         document.querySelector('#loader').style.display = 'none';
         document.getElementById('asset-container').replaceChildren(new AssetItem(dss));
+        previousData = dss.data();
     });
 })();

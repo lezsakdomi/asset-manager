@@ -12,16 +12,24 @@
     <link rel="stylesheet" href="/asset/index.css">
     <link rel="stylesheet" media="screen" href="/screen.css">
     <link rel="stylesheet" href="/loaders.css">
+    <link rel="stylesheet" href="/circle-loader.css">
     <style id="auth-style"></style>
     <template id="asset-item">
         <h1 id="asset-item-name"></h1>
-        <h3>Jelenlegi tulajdonos: <span id="asset-item-owner"></span></h3>
-        <h3>Gazda: <span id="asset-item-base"></span></h3>
+        <h3>Jelenlegi tulajdonos:</h3>
+        <div id="asset-item-owner"></div>
+        <h3>Gazda:</h3>
+        <div id="asset-item-base"></div>
         <p id="asset-item-description"></p>
         <img id="asset-item-picture"/>
-        <a id="asset-item-otr-button">📥 Elkérés</a>
-        <a id="asset-outgoing-otr-reject" class="negative">✖️ Visszavonás</a>
         <ul id="asset-item-otrs"></ul>
+        <a id="asset-item-otr-button">📥 Elkérés</a>
+        <div id="asset-item-ownership-loader-container">
+            <div id="asset-item-ownership-loader" class="hidden circle-loader">
+                <div class="checkmark draw"></div>
+            </div>
+        </div>
+        <a id="asset-outgoing-otr-reject" class="negative">✖️ Visszavonás</a>
     </template>
     <template id="asset-otr">
         <li>

@@ -1,0 +1,20 @@
+#asset-item-ownership-loader-container {
+    text-align: center;
+}
+
+#asset-item-ownership-loader {
+    transition: opacity 1s;
+}
+
+#asset-item-ownership-loader.hidden {
+    display: none;
+    opacity: 0;
+}
+
+asset-item:not(.not-owned) #asset-item-owner {
+    display: initial !important;
+}
+
+h3 {
+    margin-bottom: 0;
+}

@@ -34,6 +34,11 @@ asset-otr li {
     display: block;
 }
 
+#user-info-call {
+    float: right;
+    margin-top: -5px !important;
+}
+
 user-info.has-name #user-info-uid {
     display: none !important;
 }

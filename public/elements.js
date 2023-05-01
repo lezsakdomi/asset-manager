@@ -169,6 +169,9 @@ export class AssetItem extends HTMLElement {
         if (this.ownerDoc) {
             try {
                 this.querySelector('#asset-item-otr-button').classList.add('wip');
+                if (this.querySelector('#asset-item-ownership-loader')) {
+                    this.querySelector('#asset-item-ownership-loader').classList.remove('hidden');
+                }
                 await addDoc(collection(this.ownerDoc.ref, 'ownership-transfer-requests'), {
                     uid: auth.currentUser.uid,
                     rejected: false,
@@ -184,6 +187,9 @@ export class AssetItem extends HTMLElement {
         if (this.outgoingOtrDocs) {
             try {
                 this.querySelector('#asset-outgoing-otr-reject').classList.add('wip');
+                if (this.querySelector('#asset-item-ownership-loader')) {
+                    this.querySelector('#asset-item-ownership-loader').classList.add('hidden');
+                }
                 await Promise.all(this.outgoingOtrDocs.map(doc => updateDoc(doc.ref, {rejected: true})));
             } finally {
                 this.querySelector('#asset-outgoing-otr-reject').classList.remove('wip');
@@ -206,6 +212,9 @@ export class AssetItem extends HTMLElement {
                 if (uid === auth.currentUser.uid) {
                     this.classList.add('owned');
                     this.classList.remove('not-owned');
+                    if (this.querySelector('#asset-item-ownership-loader')) {
+                        this.querySelector('#asset-item-ownership-loader').classList.add('load-complete');
+                    }
                     const otrQuery = query(collection(doc.ref, 'ownership-transfer-requests'), where('rejected', '==', false));
                     const removeOtrListener = onSnapshot(otrQuery, (qss) => {
                         qss.docChanges().forEach((dc) => {
@@ -238,6 +247,9 @@ export class AssetItem extends HTMLElement {
                 } else {
                     this.classList.add('not-owned');
                     this.classList.remove('owned');
+                    if (this.querySelector('#asset-item-ownership-loader')) {
+                        this.querySelector('#asset-item-ownership-loader').classList.remove('load-complete');
+                    }
                     const otrQuery = query(collection(doc.ref, 'ownership-transfer-requests'),
                         where('rejected', '==', false),
                         where('uid', '==', auth.currentUser.uid));
@@ -267,8 +279,10 @@ export class AssetItem extends HTMLElement {
         this.ownerDoc = undefined;
         this.classList.remove('owned');
         this.classList.remove('not-owned');
-        this.querySelector('#asset-item-owner-name').innerText = "";
-        this.querySelector('#asset-item-call').removeAttribute('href');
+        if (this.querySelector('#asset-item-ownership-loader')) {
+            this.querySelector('#asset-item-ownership-loader').classList.remove('load-complete');
+        }
+        this.querySelector('#asset-item-owner').replaceChildren();
         this.removeOwnerListener();
         this.removeOtrListener();
     }
