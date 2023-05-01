@@ -52,3 +52,7 @@ user-info.has-name #user-info-uid {
     flex-direction: column;
     align-items: center;
 }
+
+.existing .when-not-existing {
+    display: none;
+}

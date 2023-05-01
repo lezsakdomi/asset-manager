@@ -15,43 +15,46 @@ function noop() {
 export class UserInfo extends HTMLElement {
     constructor(uid) {
         super();
-        this.docRef = doc(collection(db, 'users'), uid);
+        this.docRef = uid && doc(collection(db, 'users'), uid);
         this.setup = () => {
             const fr = document.getElementById('user-info').content.cloneNode(true);
             this.appendChild(fr);
-            this.querySelector('#user-info-uid').innerText = uid;
+            this.querySelector('#user-info-uid').innerText = uid || "";
             this.setup = noop;
         };
+        this.removeSnapshotListener = noop;
     }
 
     connectedCallback() {
         this.setup();
-        this.removeSnapshotListener = onSnapshot(this.docRef, (dss) => {
-            if (dss.exists()) {
-                this.classList.add('existing');
+        if (this.docRef) {
+            this.removeSnapshotListener = onSnapshot(this.docRef, (dss) => {
+                if (dss.exists()) {
+                    this.classList.add('existing');
 
-                const {displayName, phoneNumber} = dss.data();
+                    const {displayName, phoneNumber} = dss.data();
 
-                if (displayName) {
-                    this.classList.add('has-name');
-                    this.querySelector('#user-info-name').innerText = displayName;
+                    if (displayName) {
+                        this.classList.add('has-name');
+                        this.querySelector('#user-info-name').innerText = displayName;
+                    } else {
+                        this.classList.remove('has-name');
+                        this.querySelector('#user-info-name').innerText = "";
+                    }
+
+                    if (phoneNumber) {
+                        this.querySelector('#user-info-call').setAttribute('href', `tel://${phoneNumber}`);
+                    } else {
+                        this.querySelector('#user-info-call').removeAttribute('href');
+                    }
                 } else {
+                    this.classList.remove('existing');
                     this.classList.remove('has-name');
                     this.querySelector('#user-info-name').innerText = "";
-                }
-
-                if (phoneNumber) {
-                    this.querySelector('#user-info-call').setAttribute('href', `tel://${phoneNumber}`);
-                } else {
                     this.querySelector('#user-info-call').removeAttribute('href');
                 }
-            } else {
-                this.classList.remove('existing');
-                this.classList.remove('has-name');
-                this.querySelector('#user-info-name').innerText = "";
-                this.querySelector('#user-info-call').removeAttribute('href');
-            }
-        });
+            });
+        }
     }
 
     disconnectedCallback() {
@@ -143,12 +146,12 @@ export class AssetItem extends HTMLElement {
             this.querySelector('#asset-item-name').innerText = name;
             if (this.querySelector('a#asset-item-name'))
                 this.querySelector('a#asset-item-name').href = `/asset#${encodeURI(this.doc.ref.id)}`;
-            if (baseUid && this.querySelector('#asset-item-base'))
-                this.querySelector('#asset-item-base').replaceChildren(new UserInfo(baseUid));
-            if (description && this.querySelector('#asset-item-description'))
-                this.querySelector('#asset-item-description').innerText = description;
-            if (pictureUrl && this.querySelector('#asset-item-picture'))
-                this.querySelector('#asset-item-picture').src = pictureUrl;
+            if (this.querySelector('#asset-item-base'))
+                this.querySelector('#asset-item-base').replaceChildren(new UserInfo(baseUid || null));
+            if (this.querySelector('#asset-item-description'))
+                this.querySelector('#asset-item-description').innerText = description || "";
+            if (this.querySelector('#asset-item-picture'))
+                this.querySelector('#asset-item-picture').src = pictureUrl || "";
             this.querySelector('#asset-item-otr-button').addEventListener('click', event => {
                 this.ownershipTransferRequest().catch(console.error);
                 event.preventDefault();
@@ -271,6 +274,7 @@ export class AssetItem extends HTMLElement {
             } else {
                 this.classList.remove('owned');
                 this.classList.remove('not-owned');
+                this.querySelector('#asset-item-owner').replaceChildren(new UserInfo(null));
             }
         });
     }
