@@ -11,19 +11,19 @@ asset-item.otr-waiting {
 }
 
 #only-my-assets:checked ~ #assets > asset-item:not(.owned):not(.otr-waiting) {
-    display: none;
+    display: none !important;
 }
 
 asset-item:not(.otr-waiting) #asset-outgoing-otr-reject {
-    display: none;
+    display: none !important;
 }
 
 asset-item:is(:not(.not-owned), .otr-waiting) #asset-item-otr-button {
-    display: none;
+    display: none !important;
 }
 
 asset-item:not(.not-owned) #asset-item-owner {
-    display: none;
+    display: none !important;
 }
 
 :is(asset-otr, asset-item) pre {
@@ -35,7 +35,7 @@ asset-otr li {
 }
 
 user-info.has-name #user-info-uid {
-    display: none;
+    display: none !important;
 }
 
 #user-info-call:not([href]) {

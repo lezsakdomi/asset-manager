@@ -1,24 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lakóparki eszközök</title>
+    <title>Eszköz</title>
 
     <script defer src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
     <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css"/>
-    <script type="module" src="/index.js"></script>
+    <script type="module" src="/asset/index.js"></script>
     <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/asset/index.css">
     <link rel="stylesheet" media="screen" href="/screen.css">
     <style id="auth-style"></style>
     <template id="asset-item">
-        <li>
-            <a class="link" id="asset-item-name"></a>
-            <span id="asset-item-owner"></span>
-            <a id="asset-item-otr-button">📥 Elkérés</a>
-            <a id="asset-outgoing-otr-reject" class="negative">✖️ Visszavonás</a>
-            <ul id="asset-item-otrs"></ul>
-        </li>
+        <h1 id="asset-item-name"></h1>
+        <h3>Jelenlegi tulajdonos: <span id="asset-item-owner"></span></h3>
+        <h3>Gazda: <span id="asset-item-base"></span></h3>
+        <p id="asset-item-description"></p>
+        <img id="asset-item-picture"/>
+        <a id="asset-item-otr-button">📥 Elkérés</a>
+        <a id="asset-outgoing-otr-reject" class="negative">✖️ Visszavonás</a>
+        <ul id="asset-item-otrs"></ul>
     </template>
     <template id="asset-otr">
         <li>
@@ -36,14 +38,12 @@
 <body>
 
 <div id="message">
-    <h1>Lakóparki eszközök</h1>
+    <h2><code id="asset-id"></code></h2>
     <div class="if-unauthenticated">
-        <h2>A nálad lévő eszközök megtekintéséhez jelentkezz be!</h2>
+        <h3>Az eszköz átvételéhez jelentkezz be!</h3>
     </div>
     <div class="if-authenticated">
-        <input type="checkbox" id="only-my-assets" checked>
-        <label for="only-my-assets">Csak a nálam lévők mutatása</label>
-        <ul id="assets"></ul>
+        <span id="asset-container"></span>
     </div>
     <div id="firebaseui-auth-container"></div>
 </div>
