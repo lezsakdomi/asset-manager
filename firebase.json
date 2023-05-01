@@ -9,6 +9,12 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/asset/*",
+        "destination": "/asset/index.html"
+      }
     ]
   },
   "emulators": {

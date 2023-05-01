@@ -20,7 +20,7 @@ import {UserInfo, AssetOtr, AssetItem} from "../elements.js";
 
 (async () => {
     await domContentLoaded;
-    const assetId = decodeURI(location.hash.slice(1));
+    const assetId = decodeURIComponent(location.pathname.split('/')[2]);
     document.getElementById('asset-id').innerText = assetId;
     document.title = assetId;
     await authenticated;

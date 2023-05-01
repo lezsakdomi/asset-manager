@@ -146,7 +146,7 @@ export class AssetItem extends HTMLElement {
             const {name, baseUid, description, pictureUrl} = this.doc.data();
             this.querySelector('#asset-item-name').innerText = name;
             if (this.querySelector('a#asset-item-name'))
-                this.querySelector('a#asset-item-name').href = `/asset#${encodeURI(this.doc.ref.id)}`;
+                this.querySelector('a#asset-item-name').href = `/asset/${encodeURIComponent(this.doc.ref.id)}`;
             if (this.querySelector('#asset-item-base'))
                 this.querySelector('#asset-item-base').replaceChildren(new UserInfo(baseUid || null));
             if (this.querySelector('#asset-item-description'))
