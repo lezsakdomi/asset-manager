@@ -53,13 +53,21 @@
     <div class="if-unauthenticated">
         <h3>Az eszköz átvételéhez jelentkezz be!</h3>
     </div>
-    <div class="if-authenticated">
+    <div class="if-authenticated when-member when-activated">
         <span id="asset-container"></span>
         <div id="loader">
             <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
         </div>
     </div>
     <div id="firebaseui-auth-container"></div>
+    <p class="unless-activated">
+        A fiókod nem aktív.
+        <a href="/activate">Aktiválom</a>
+    </p>
+    <p class="unless-member">
+        Nem vagy tagja az egyesületnek. Ha befizetted a tagdíjat, keresd fel a rendszer adminisztrátorát!
+        <a href="mailto:csaba.paszternak@t-online.hu">📧 Email</a>
+    </p>
 </div>
 
 </body>

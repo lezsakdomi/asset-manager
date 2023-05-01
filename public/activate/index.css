@@ -1,0 +1,7 @@
+#back-button:not([href]) {
+    display: none !important;
+}
+
+#back-button[href] ~ #back-home-button {
+    display: none !important;
+}

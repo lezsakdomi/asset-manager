@@ -1,22 +1,28 @@
 rules_version = '2';
 service cloud.firestore {
-    function authenticated(request) {
-        return request.auth != null
-            && get(/users/$(request.auth.uid)).data['customClaims']['member']
-            && get(/users/$(request.auth.uid)).data['customClaims']['activated']
-    }
-
-    function currentUserSpecified(request, resource) {
-        return authenticated(request)
-            && request.auth.uid == resource.data.uid
-    }
-
-    function justRejects(request, resource) {
-        return (request.resource.data.diff(resource.data).affectedKeys().size() == 1)
-            && (request.resource.data['rejected'] == true)
-    }
-
     match /databases/{database}/documents {
+        function authorized(uid) {
+            let userRef = /databases/$(database)/documents/users/$(uid);
+            let userData = get(userRef).data;
+            let claims = userData['customClaims'];
+            return 'member' in claims && claims['member']
+                && 'activated' in claims && claims['activated']
+        }
+
+        function authenticated(request) {
+            return debug(request.auth != null && authorized(request.auth.uid));
+        }
+
+        function currentUserSpecified(request, resource) {
+            return authenticated(request)
+                && request.auth.uid == resource.data.uid
+        }
+
+        function justRejects(request, resource) {
+            return (request.resource.data.diff(resource.data).affectedKeys().size() == 1)
+                && (request.resource.data['rejected'] == true)
+        }
+
         match /users/{userId} {
             allow read: if authenticated(request) || request.auth.uid == userId;
             allow update: if request.auth.uid == userId

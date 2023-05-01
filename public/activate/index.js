@@ -4,20 +4,6 @@ import {collection, doc, onSnapshot, updateDoc} from "https://www.gstatic.com/fi
 import {db} from "../firebaseFirestore.js";
 import auth from "../firebaseAuth.js";
 
-function updateStyle({activated}) {
-    const styleElement = document.getElementById('auth-style');
-    if (styleElement) {
-        styleElement.innerText = `
-.when-activated {
-    display: ${activated ? 'initial' : 'none'};
-}
-.unless-activated {
-    display: ${!activated ? 'initial' : 'none'};
-}
-`;
-    }
-}
-
 (async () => {
     await domContentLoaded;
     document.getElementById('activate-button').addEventListener('click', event => {
@@ -29,9 +15,7 @@ function updateStyle({activated}) {
         })().catch(console.error);
         event.preventDefault();
     });
-    await authenticated;
-    onSnapshot(doc(collection(db, 'users'), auth.currentUser.uid), dss => {
-        const {customClaims: {activated}} = dss.data();
-        updateStyle({activated});
-    });
+    if (document.referrer) {
+        document.getElementById('back-button').setAttribute('href', document.referrer);
+    }
 })();
