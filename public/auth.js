@@ -89,7 +89,7 @@ export const authenticated = Promise.all([
 
     console.assert(document.getElementById('firebaseui-auth-container'));
 
-    updateStyle({authenticated: false});
+    updateStyle({});
     window.auth = auth;
 
     if (!await initialAuthState) {
@@ -97,6 +97,7 @@ export const authenticated = Promise.all([
         return new Promise((resolve, reject) => {
             const ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
             window.authUi = ui;
+            updateStyle({authenticated: false});
             ui.start('#firebaseui-auth-container', {
                 signInFlow: 'popup',
                 signInOptions: [
