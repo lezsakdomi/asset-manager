@@ -5,8 +5,8 @@ service cloud.firestore {
             let userRef = /databases/$(database)/documents/users/$(uid);
             let userData = get(userRef).data;
             let claims = userData['customClaims'];
-            return 'member' in claims && claims['member']
-                && 'activated' in claims && claims['activated']
+            return 'activated' in claims && claims['activated']
+//                && 'member' in claims && claims['member']
         }
 
         function authenticated(request) {

@@ -119,8 +119,8 @@ authenticated.then(() => {
     import("./firebaseFirestore.js").then(({db}) => {
         onSnapshot(doc(collection(db, 'users'), auth.currentUser.uid), dss => {
             if (dss.data()) {
-                const {customClaims: {member = false, activated = false} = {}} = dss.data();
-                updateStyle({authenticated: true, member, activated, registered: true});
+                const {customClaims: {activated = false} = {}} = dss.data();
+                updateStyle({authenticated: true, member: true, activated, registered: true});
             } else {
                 updateStyle({authenticated: true, registered: false});
             }
