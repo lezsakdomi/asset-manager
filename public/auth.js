@@ -90,13 +90,13 @@ export const authenticated = Promise.all([
     console.assert(document.getElementById('firebaseui-auth-container'));
 
     updateStyle({authenticated: false});
+    window.auth = auth;
 
     if (!await initialAuthState) {
         await window.firebase.auth().setPersistence(window.firebase.auth.Auth.Persistence.SESSION);
         return new Promise((resolve, reject) => {
             const ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
             window.authUi = ui;
-            window.auth = auth;
             ui.start('#firebaseui-auth-container', {
                 signInFlow: 'popup',
                 signInOptions: [
