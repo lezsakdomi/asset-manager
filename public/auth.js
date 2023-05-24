@@ -126,4 +126,7 @@ authenticated.then(() => {
             }
         });
     });
+}, e => {
+    console.error(e);
+    document.write(`<pre>${e.toString()}</pre>`);
 })
