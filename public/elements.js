@@ -34,7 +34,7 @@ export class UserInfo extends HTMLElement {
                 if (dss.exists()) {
                     this.classList.add('existing');
 
-                    const {displayName, phoneNumber} = dss.data();
+                    const {displayName, phoneNumber, address} = dss.data();
 
                     if (displayName) {
                         this.classList.add('has-name');
@@ -48,6 +48,12 @@ export class UserInfo extends HTMLElement {
                         this.querySelector('#user-info-call').setAttribute('href', `tel://${phoneNumber}`);
                     } else {
                         this.querySelector('#user-info-call').removeAttribute('href');
+                    }
+
+                    if (address) {
+                        this.querySelector('#user-info-address').setAttribute('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
+                    } else {
+                        this.querySelector('#user-info-address').removeAttribute('href');
                     }
                 } else {
                     this.classList.remove('existing');

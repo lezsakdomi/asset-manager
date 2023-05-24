@@ -34,16 +34,17 @@ asset-otr li {
     display: block;
 }
 
-#user-info-call {
+#user-info-call, #user-info-address {
     float: right;
     margin-top: -5px !important;
+    margin-left: 0.5em;
 }
 
 user-info.has-name #user-info-uid {
     display: none !important;
 }
 
-#user-info-call:not([href]) {
+:is(#user-info-call, #user-info-address):not([href]) {
     display: none !important;
 }
 
