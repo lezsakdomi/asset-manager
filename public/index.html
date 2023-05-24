@@ -42,14 +42,6 @@
     <div class="if-unauthenticated">
         <h2>A nálad lévő eszközök megtekintéséhez jelentkezz be!</h2>
     </div>
-    <div class="if-authenticated when-member when-activated">
-        <input type="checkbox" id="only-my-assets" checked>
-        <label for="only-my-assets">Csak a nálam lévők mutatása</label>
-        <ul id="assets"></ul>
-        <div id="loader">
-            <div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-        </div>
-    </div>
     <div id="firebaseui-auth-container"></div>
     <p class="when-member unless-activated">
         A fiókod nem aktív.
@@ -63,6 +55,14 @@
         A rendszert csak egyesületi tagok használhatják. Regisztráláshoz keresd fel a rendszer adminisztrátorát!
         <a href="mailto:csaba.paszternak@t-online.hu">📧 Email</a>
     </p>
+    <div class="if-authenticated when-member when-activated">
+        <input type="checkbox" id="only-my-assets" checked>
+        <label for="only-my-assets">Csak a nálam lévők mutatása</label>
+        <ul id="assets"></ul>
+        <div id="loader">
+            <div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        </div>
+    </div>
 </div>
 
 </body>
