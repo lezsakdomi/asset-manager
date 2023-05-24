@@ -92,7 +92,9 @@ export const authenticated = Promise.all([
     updateStyle({});
     window.auth = auth;
 
-    if (!await initialAuthState) {
+    if (await initialAuthState) {
+        return initialAuthState;
+    } else {
         await window.firebase.auth().setPersistence(window.firebase.auth.Auth.Persistence.SESSION);
         return new Promise((resolve, reject) => {
             const ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
@@ -107,27 +109,53 @@ export const authenticated = Promise.all([
                 callbacks: {
                     signInSuccessWithAuthResult(authResult, redirectUrl) {
                         updateStyle({authenticated: true});
-                        resolve(authResult);
+                        if (authResult.user) {
+                            resolve(authResult.user);
+                        } else {
+                            reject(new Error("Authenticated without a user"))
+                        }
                         return false;
                     },
                 },
             });
         });
     }
-});
-
-authenticated.then(() => {
-    import("./firebaseFirestore.js").then(({db}) => {
-        onSnapshot(doc(collection(db, 'users'), auth.currentUser.uid), dss => {
+}).then(async (user) => {
+    window.authenticatedUid = user.uid
+    const {db} = await import("./firebaseFirestore.js")
+    return new Promise((resolve, reject) => {
+        onSnapshot(doc(collection(db, 'users'), user.uid), dss => {
             if (dss.data()) {
                 const {customClaims: {activated = false} = {}} = dss.data();
                 updateStyle({authenticated: true, member: true, activated, registered: true});
+                resolve()
             } else {
                 updateStyle({authenticated: true, registered: false});
+                reject(new Error("No Firestore document for authenticated user"))
             }
-        });
-    });
-}, e => {
-    console.error(e);
-    document.write(`<pre>${e.toString()}</pre>`);
-})
+        }, reject);
+    }).then(() => user);
+}).then(user => {
+    const {uid} = user
+
+    if (!window.auth.currentUser) {
+        throw new Error("Authenticated in modular firebase, but not in compat")
+    }
+
+    if (window.auth.currentUser.uid !== uid) {
+        throw new Error("Modular and compat UID mismatch")
+    }
+
+    return user;
+}).catch(e => {
+    const LAST_AUTH_ERROR_RELOAD_KEY = 'lastAuthErrorReload';
+    if (new Date() - new Date(localStorage.getItem(LAST_AUTH_ERROR_RELOAD_KEY)) > 3000) {
+        localStorage.setItem(LAST_AUTH_ERROR_RELOAD_KEY, (new Date()).toString())
+        location.reload()
+    } else {
+        console.error(e);
+        document.write(`<pre>${e.toString()}</pre>`);
+    }
+
+    throw e;
+});

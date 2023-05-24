@@ -8,6 +8,7 @@ import {
 import {db} from "./firebaseFirestore.js";
 import {ulid} from "https://unpkg.com/ulid@2.3.0/dist/index.esm.js";
 import auth from "./firebaseAuth.js";
+import {authenticated} from "./auth.js";
 
 function noop() {
     // noop
@@ -177,12 +178,13 @@ export class AssetItem extends HTMLElement {
     async ownershipTransferRequest() {
         if (this.ownerDoc) {
             try {
+                const user = await authenticated;
                 this.querySelector('#asset-item-otr-button').classList.add('wip');
                 if (this.querySelector('#asset-item-ownership-loader')) {
                     this.querySelector('#asset-item-ownership-loader').classList.remove('hidden');
                 }
                 await addDoc(collection(this.ownerDoc.ref, 'ownership-transfer-requests'), {
-                    uid: auth.currentUser.uid,
+                    uid: user.uid,
                     rejected: false,
                     at: serverTimestamp(),
                 });
@@ -212,13 +214,14 @@ export class AssetItem extends HTMLElement {
             const batch = writeBatch(db);
             const newOwnerId = ulid(Date.now());
             const newOwnerRef = doc(this.doc.ref, 'owners', newOwnerId);
+            const user = await authenticated;
             batch.set(newOwnerRef, {
                 since: serverTimestamp(),
-                uid: auth.currentUser.uid,
+                uid: user.uid,
             });
             batch.update(this.doc.ref, {
                 latestOwnerId: newOwnerId,
-                latestOwnerUid: auth.currentUser.uid,
+                latestOwnerUid: user.uid,
             });
             await batch.commit();
         } finally {
@@ -239,7 +242,7 @@ export class AssetItem extends HTMLElement {
                 this.ownerDoc = doc;
                 const {uid} = doc.data();
                 this.querySelector('#asset-item-owner').replaceChildren(new UserInfo(uid));
-                if (uid === auth.currentUser.uid) {
+                if (uid === window.authenticatedUid) {
                     this.classList.add('owned');
                     this.classList.remove('not-owned');
                     if (this.querySelector('#asset-item-ownership-loader')) {
@@ -282,7 +285,7 @@ export class AssetItem extends HTMLElement {
                     }
                     const otrQuery = query(collection(doc.ref, 'ownership-transfer-requests'),
                         where('rejected', '==', false),
-                        where('uid', '==', auth.currentUser.uid));
+                        where('uid', '==', window.authenticatedUid));
                     const removeOtrListener = onSnapshot(otrQuery, (qss) => {
                         this.outgoingOtrDocs = qss.docs;
                         if (qss.docs.length) {
