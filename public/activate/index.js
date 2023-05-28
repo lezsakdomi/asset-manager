@@ -15,7 +15,4 @@ import auth from "../firebaseAuth.js";
         })().catch(console.error);
         event.preventDefault();
     });
-    if (document.referrer) {
-        document.getElementById('back-button').setAttribute('href', document.referrer);
-    }
 })();
