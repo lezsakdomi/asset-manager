@@ -87,6 +87,8 @@ export class UserInfo extends HTMLElement {
                     this.classList.remove('has-name');
                     this.querySelector('#user-info-name').innerText = "";
                     this.querySelector('#user-info-call').removeAttribute('href');
+                    this.querySelector('#user-info-address').removeAttribute('href');
+                    this.querySelector('#user-info-email').removeAttribute('href');
                 }
             });
         }
