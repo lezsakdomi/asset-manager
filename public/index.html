@@ -13,7 +13,15 @@
     <link rel="stylesheet" href="/elements.css">
     <link rel="stylesheet" media="screen" href="/screen.css">
     <link rel="stylesheet" href="/loaders.css">
-    <style id="auth-style"></style>
+    <style id="auth-style">
+        #message > * {
+            display: none !important;
+        }
+
+        #auth-load-error {
+            display: initial !important;
+        }
+    </style>
     <template id="asset-item">
         <li>
             <a class="link" id="asset-item-name"></a>
@@ -67,6 +75,13 @@
         </div>
     </div>
     <a class="if-authenticated" onclick="auth.signOut().then(() => location.reload())">Kijelentkezés</a>
+    <span id="auth-load-error" style="display: none">
+        <h1>Betöltés</h1>
+        <p>Várakozás az authentikációs modul betöltésére...</p>
+        <p>Ha a probléma nem szűnik meg, használd az egyszerűsített változatot</p>
+        <a onclick="location.reload(true)">Újrapróbálkozás</a>
+        <a href="javascript:alert('Lite version is under construction :(')">Átváltás az egyszserűsített módra</a>
+    </span>
 </div>
 
 </body>
