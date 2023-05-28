@@ -1,3 +1,8 @@
 asset-item.owned a.link {
     color: black;
 }
+
+asset-item user-info {
+    display: block;
+    margin-bottom: 10px;
+}
