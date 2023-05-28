@@ -15,6 +15,10 @@
       {
         "source": "/asset/*",
         "destination": "/asset/index.html"
+      },
+      {
+        "source": "/lite/**",
+        "function": "lite"
       }
     ]
   },
@@ -28,9 +32,27 @@
     "hosting": {
       "port": 5000
     },
+    "functions": {
+      "port": 3000
+    },
     "ui": {
       "enabled": true
     },
     "singleProjectMode": true
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
 }

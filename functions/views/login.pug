@@ -1,0 +1,31 @@
+style.
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .row > label {
+        width: 5em;
+    }
+
+main
+    p.
+        Warning! This page stores credentials in an unsafe way.
+        Make sure you log out after using the site.
+        If you don't use this site for 1 minute, you'll be automatically logged out.
+    form(method='post')
+        if redirect
+            input(type='hidden', name='redirect', value=redirect)
+        .row
+            label(for='email') Email:
+            input#email(name='email', type='text')
+        .row
+            label(for='password') Password:
+            input#password(name='password', type='password')
+        .row
+            button Login

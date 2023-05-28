@@ -1,0 +1,57 @@
+style.
+    table, td, th {
+        border: none;
+    }
+
+    th {
+        text-align: left;
+        vertical-align: bottom;
+    }
+
+    tr:has(th) td {
+        padding-top: 1em;
+    }
+
+main
+    pre= assetId
+    pre(style={display: 'none'})= JSON.stringify(asset, null, 2)
+    h2= asset.name
+    if asset.description
+        p= asset.description
+    if asset.pictureUrl
+        img(src=asset.pictureUrl)
+    table
+        pre(style={display: 'none'})= JSON.stringify(baseUser, null, 2)
+        tr
+            th Base
+            td= baseUser ? baseUser.displayName : "none"
+        if baseUser
+            if baseUser.email
+                tr
+                    td Email
+                    td= baseUser.email
+            if baseUser.address
+                tr
+                    td Address
+                    td= baseUser.address
+            if baseUser.phoneNumber
+                tr
+                    td Phone
+                    td= baseUser.phoneNumber
+        pre(style={display: 'none'})= JSON.stringify(ownerUser, null, 2)
+        tr
+            th Owner
+            td= ownerUser ? ownerUser.displayName : "none"
+        if ownerUser
+            if ownerUser.email
+                tr
+                    td Email
+                    td= ownerUser.email
+            if ownerUser.address
+                tr
+                    td Address
+                    td= ownerUser.address
+            if ownerUser.phoneNumber
+                tr
+                    td Phone
+                    td= ownerUser.phoneNumber

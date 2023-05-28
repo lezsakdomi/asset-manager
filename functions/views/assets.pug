@@ -1,0 +1,26 @@
+style.
+    li {
+        margin-bottom: 0.5em;
+    }
+
+    .rows {
+        display: inline-flex;
+        flex-direction: column;
+    }
+
+main
+    each asset, assetId in assets
+        li
+            .rows
+                a(href=`assets/${encodeURIComponent(assetId)}`)= asset.name
+                pre(style={display: 'none'})= JSON.stringify(asset, null, 2)
+                if asset.owner && asset.owner.user
+                    - owner = asset.owner.user
+                    i= owner.displayName
+                    div
+                        if owner.email
+                            a(href=`mailto:${owner.email}`): button 📧
+                        if owner.address
+                            a(href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(owner.address)}`): button 🏠
+                        if owner.phoneNumber
+                            a(href=`tel:${owner.phoneNumber}`): button 📞
