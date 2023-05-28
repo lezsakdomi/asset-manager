@@ -34,7 +34,7 @@ asset-otr li {
     display: block;
 }
 
-#user-info-call, #user-info-address {
+#user-info-call, #user-info-address, #user-info-email {
     float: right;
     margin-top: -5px !important;
     margin-left: 0.5em;
@@ -44,7 +44,7 @@ user-info.has-name #user-info-uid {
     display: none !important;
 }
 
-:is(#user-info-call, #user-info-address):not([href]) {
+:is(#user-info-call, #user-info-address, #user-info-email):not([href]) {
     display: none !important;
 }
 

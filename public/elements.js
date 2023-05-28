@@ -34,7 +34,7 @@ export class UserInfo extends HTMLElement {
                 if (dss.exists()) {
                     this.classList.add('existing');
 
-                    const {displayName, phoneNumber, address} = dss.data();
+                    const {displayName, phoneNumber, address, email} = dss.data();
 
                     if (displayName) {
                         this.classList.add('has-name');
@@ -67,6 +67,19 @@ export class UserInfo extends HTMLElement {
                         addressElement.removeAttribute('href');
                         if ('prefix' in addressElement.dataset) {
                             addressElement.innerText = "";
+                        }
+                    }
+
+                    const emailElement = this.querySelector('#user-info-email');
+                    if (email && emailElement) {
+                        emailElement.setAttribute('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(email)}`);
+                        if ('prefix' in emailElement.dataset) {
+                            emailElement.innerText = emailElement.dataset.prefix + " " + email;
+                        }
+                    } else {
+                        emailElement.removeAttribute('href');
+                        if ('prefix' in emailElement.dataset) {
+                            emailElement.innerText = "";
                         }
                     }
                 } else {
