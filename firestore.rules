@@ -27,7 +27,10 @@ service cloud.firestore {
             allow read: if authenticated(request) || request.auth.uid == userId;
             allow update: if request.auth.uid == userId
                 && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customClaims'])
-                && request.resource.data['customClaims'].diff(resource.data['customClaims']).affectedKeys().hasOnly(['activated']);
+                && ('customClaims' in resource.data
+                    ? request.resource.data['customClaims'].diff(resource.data['customClaims']).affectedKeys().hasOnly(['activated'])
+                    : request.resource.data['customClaims'].keys().hasOnly(['activated'])
+                );
         }
 
         match /assets/{assetId} {
