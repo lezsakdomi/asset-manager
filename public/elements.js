@@ -44,16 +44,30 @@ export class UserInfo extends HTMLElement {
                         this.querySelector('#user-info-name').innerText = "";
                     }
 
-                    if (phoneNumber) {
-                        this.querySelector('#user-info-call').setAttribute('href', `tel://${phoneNumber}`);
+                    const phoneNumberElement = this.querySelector('#user-info-call');
+                    if (phoneNumber && phoneNumberElement) {
+                        phoneNumberElement.setAttribute('href', `tel://${phoneNumber}`);
+                        if ('prefix' in phoneNumberElement.dataset) {
+                            phoneNumberElement.innerText = phoneNumberElement.dataset.prefix + " " + phoneNumber;
+                        }
                     } else {
-                        this.querySelector('#user-info-call').removeAttribute('href');
+                        phoneNumberElement.removeAttribute('href');
+                        if ('prefix' in phoneNumberElement.dataset) {
+                            phoneNumberElement.innerText = ""
+                        }
                     }
 
-                    if (address) {
-                        this.querySelector('#user-info-address').setAttribute('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
+                    const addressElement = this.querySelector('#user-info-address');
+                    if (address && addressElement) {
+                        addressElement.setAttribute('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`);
+                        if ('prefix' in addressElement.dataset) {
+                            addressElement.innerText = addressElement.dataset.prefix + " " + address;
+                        }
                     } else {
-                        this.querySelector('#user-info-address').removeAttribute('href');
+                        addressElement.removeAttribute('href');
+                        if ('prefix' in addressElement.dataset) {
+                            addressElement.innerText = "";
+                        }
                     }
                 } else {
                     this.classList.remove('existing');
