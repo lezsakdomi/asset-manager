@@ -1,6 +1,6 @@
 import {authenticated} from "../auth.js";
 import domContentLoaded from "../domContentLoaded.js";
-import {collection, doc, onSnapshot, updateDoc} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
+import {collection, doc, onSnapshot, updateDoc, getDoc} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
 import {db} from "../firebaseFirestore.js";
 import auth from "../firebaseAuth.js";
 
@@ -9,7 +9,17 @@ import auth from "../firebaseAuth.js";
     document.getElementById('activate-button').addEventListener('click', event => {
         (async () => {
             await authenticated;
-            await updateDoc(doc(collection(db, 'users'), auth.currentUser.uid), {
+            const userDoc = doc(collection(db, 'users'), auth.currentUser.uid);
+            const userDocSs = await getDoc(userDoc);
+            if (!userDocSs.exists) {
+                alert(`Unfortunately users/${auth.currentUser.uid} does not exists, please contact the administrator (csaba.paszernak@t-online.hu)`)
+            }
+            if (!userDocSs.data().customClaims) {
+                await updateDoc(userDoc, {
+                    'customClaims': {},
+                })
+            }
+            await updateDoc(userDoc, {
                 'customClaims.activated': true,
             });
         })().catch(console.error);
