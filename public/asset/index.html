@@ -15,13 +15,13 @@
     <link rel="stylesheet" href="/circle-loader.css">
     <style id="auth-style"></style>
     <template id="asset-item">
+        <img id="asset-item-picture"/>
         <h1 id="asset-item-name"></h1>
+        <p id="asset-item-description"></p>
         <h3>Jelenleg használja:</h3>
         <div id="asset-item-owner"></div>
         <h3>Tárolási bázis:</h3>
         <div id="asset-item-base"></div>
-        <p id="asset-item-description"></p>
-        <img id="asset-item-picture"/>
         <ul id="asset-item-otrs"></ul>
         <a id="asset-item-otr-button">📥 Elkérés</a>
         <a id="asset-item-take-button">📥 Felvétel</a>
@@ -50,9 +50,10 @@
 </head>
 <body>
 
-<a href="/">&larr; Vissza</a>
+<header>
+    <a href="/">&larr; Vissza</a> | <code id="asset-id"></code>
+</header>
 <div id="message">
-    <h2><code id="asset-id"></code></h2>
     <div class="if-unauthenticated">
         <h3>Az eszköz átvételéhez jelentkezz be!</h3>
     </div>
