@@ -72,7 +72,7 @@ export class UserInfo extends HTMLElement {
 
                     const emailElement = this.querySelector('#user-info-email');
                     if (email && emailElement) {
-                        emailElement.setAttribute('href', `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(email)}`);
+                        emailElement.setAttribute('href', `mailto:${email}`);
                         if ('prefix' in emailElement.dataset) {
                             emailElement.innerText = emailElement.dataset.prefix + " " + email;
                         }
