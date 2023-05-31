@@ -1,0 +1,10 @@
+main
+    form(method='post')
+        select(name='uid')
+            for user, uid in users
+                option(value=uid, selected=uid === previousUid)
+                    //pre(style={display: 'none'})= JSON.stringify(user, null, 2)
+                    = user.displayName
+        br
+        button Ok
+        a(href=`../../` + assetId): button(type='button') Cancel

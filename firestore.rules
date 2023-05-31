@@ -9,6 +9,13 @@ service cloud.firestore {
 //                && 'member' in claims && claims['member']
         }
 
+        function isAdmin(uid) {
+            let userRef = /databases/$(database)/documents/users/$(uid);
+            let userData = get(userRef).data;
+            let claims = userData['customClaims'];
+            return 'admin' in claims && claims['admin']
+        }
+
         function authenticated(request) {
             return debug(request.auth != null && authorized(request.auth.uid));
         }
@@ -39,7 +46,7 @@ service cloud.firestore {
                 let newOwnerRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(newOwnerId);
                 let newOwner = getAfter(newOwnerRef);
                 return authenticated(request)
-                    && (!('latestOwnerUid' in resource.data) || resource.data['latestOwnerUid'] == request.auth.uid)
+                    && (isAdmin(request.auth.uid) || !('latestOwnerUid' in resource.data) || resource.data['latestOwnerUid'] == request.auth.uid)
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latestOwnerId', 'latestOwnerUid'])
                     && request.resource.data['latestOwnerUid'] == newOwner.data.uid
                     && newOwner.data['since'] == request.time;
@@ -65,7 +72,7 @@ service cloud.firestore {
                 function checkOwnerCreate(request, resource) {
                     let asset = get(assetRef());
                     return authenticated(request)
-                        && (!('latestOwnerId' in asset.data) || checkOwnerChain(request, resource, asset))
+                        && (isAdmin(request.auth.uid) || !('latestOwnerId' in asset.data) || checkOwnerChain(request, resource, asset))
                         && resource.data['since'] == request.time
                         && getAfter(assetRef()).data['latestOwnerId'] == ownerId;
                 }

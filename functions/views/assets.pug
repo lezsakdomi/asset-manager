@@ -9,10 +9,11 @@ style.
     }
 
 main
-    each asset, assetId in assets
+    h1 KanyaRent assets
+    ul: each asset, assetId in assets
         li
             .rows
-                a(href=`assets/${encodeURIComponent(assetId)}`)= asset.name
+                a(href=`${encodeURIComponent(assetId)}`)= asset.name
                 pre(style={display: 'none'})= JSON.stringify(asset, null, 2)
                 if asset.owner && asset.owner.user
                     - owner = asset.owner.user

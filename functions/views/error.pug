@@ -1,0 +1,14 @@
+style.
+    ul {
+        list-style-type: disclosure-closed;
+    }
+
+main
+    h1 Error
+    if err
+        details
+            summary: code= err.message
+            pre= err.stack
+    ul
+        li Try #[a(href=loginUrl) logging in] again
+

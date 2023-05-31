@@ -23,9 +23,9 @@ main
             input(type='hidden', name='redirect', value=redirect)
         .row
             label(for='email') Email:
-            input#email(name='email', type='text')
+            input#email(name='email', type='text', tabindex=0, autofocus=true)
         .row
             label(for='password') Password:
-            input#password(name='password', type='password')
+            input#password(name='password', type='password', tabindex=1)
         .row
-            button Login
+            button(tabindex=2) Login

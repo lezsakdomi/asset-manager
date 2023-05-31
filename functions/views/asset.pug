@@ -1,4 +1,10 @@
 style.
+    h2 {
+        display: flex;
+        align-items: center;
+        gap: 5px
+    }
+
     table, td, th {
         border: none;
     }
@@ -12,46 +18,48 @@ style.
         padding-top: 1em;
     }
 
+    a:has(button) {
+        margin-left: 5px;
+    }
+
 main
-    pre= assetId
+    pre(style={display: 'none'})= JSON.stringify(user, null, 2)
+    //pre= assetId
     pre(style={display: 'none'})= JSON.stringify(asset, null, 2)
-    h2= asset.name
+    h2
+        = asset.name
+        if user && user.customClaims && user.customClaims.admin
+            a(target='_blank', href=`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(`https://kanyarent.web.app/asset/${encodeURIComponent(assetId)}`)}`)
+                button QR code
     if asset.description
         p= asset.description
     if asset.pictureUrl
         img(src=asset.pictureUrl)
     table
-        pre(style={display: 'none'})= JSON.stringify(baseUser, null, 2)
-        tr
-            th Base
-            td= baseUser ? baseUser.displayName : "none"
-        if baseUser
-            if baseUser.email
-                tr
-                    td Email
-                    td= baseUser.email
-            if baseUser.address
-                tr
-                    td Address
-                    td= baseUser.address
-            if baseUser.phoneNumber
-                tr
-                    td Phone
-                    td= baseUser.phoneNumber
-        pre(style={display: 'none'})= JSON.stringify(ownerUser, null, 2)
-        tr
-            th Owner
-            td= ownerUser ? ownerUser.displayName : "none"
-        if ownerUser
-            if ownerUser.email
-                tr
-                    td Email
-                    td= ownerUser.email
-            if ownerUser.address
-                tr
-                    td Address
-                    td= ownerUser.address
-            if ownerUser.phoneNumber
-                tr
-                    td Phone
-                    td= ownerUser.phoneNumber
+        mixin user(role, targetUser)
+            pre(style={display: 'none'})= JSON.stringify(targetUser, null, 2)
+            tr
+                th= role[0].toUpperCase() + role.slice(1)
+                td
+                    = targetUser ? targetUser.displayName : "none"
+                    if user && user.customClaims && user.customClaims.admin
+                        a(href=`${encodeURIComponent(assetId)}/edit/${role}` + (targetUser ? `?previousUid=${encodeURIComponent(targetUser.uid)}` : ""))
+                            if targetUser
+                                button Change
+                            else
+                                button Assign
+            if targetUser
+                if targetUser.email
+                    tr
+                        td Email
+                        td= targetUser.email
+                if targetUser.address
+                    tr
+                        td Address
+                        td= targetUser.address
+                if targetUser.phoneNumber
+                    tr
+                        td Phone
+                        td= targetUser.phoneNumber
+        +user("base", baseUser)
+        +user("owner", ownerUser)

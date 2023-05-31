@@ -103,8 +103,21 @@ export const authenticated = Promise.all([
             ui.start('#firebaseui-auth-container', {
                 signInFlow: 'popup',
                 signInOptions: [
-                    window.firebase.auth.EmailAuthProvider.PROVIDER_ID,
-                    window.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+                    {
+                        provider: window.firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                        disableSignUp: {
+                            status: true,
+                            adminEmail: "csaba.paszternak@t-online.hu",
+                        },
+                    },
+                    {
+                        provider: window.firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+                        defaultCountry: 'HU',
+                        disableSignUp: {
+                            status: true,
+                            adminEmail: "csaba.paszternak@t-online.hu",
+                        },
+                    }
                 ],
                 callbacks: {
                     signInSuccessWithAuthResult(authResult, redirectUrl) {
@@ -159,3 +172,25 @@ export const authenticated = Promise.all([
 
     throw e;
 });
+
+setInterval(() => {
+    document.querySelectorAll('.firebaseui-info-bar-message').forEach(e =>
+        [...e.childNodes].filter(n => n instanceof Text).forEach(n =>
+            n.textContent = n.textContent.replace(
+                "Firebase: This operation is restricted to administrators only. (auth/admin-restricted-operation).",
+                "A megadott telefonszám nem szerepel a nyilvántartásunkban, forduljon az adminisztrátorhoz (csaba.paszternak@t-online.hu)"
+            )
+        )
+    )
+}, 200)
+
+setInterval(() => {
+    document.querySelectorAll("#firebaseui-auth-container div.firebaseui-card-actions div.firebaseui-form-links > a").forEach(e =>
+        [...e.childNodes].filter(n => n instanceof Text).forEach(n =>
+            n.textContent = n.textContent.replace(
+                "Trouble signing in?",
+                "Jelszó módosítás"
+            )
+        )
+    )
+}, 200)

@@ -39,6 +39,7 @@ header {
     left: 0;
     right: 0;
     height: 1.2em;
+    background: #ffa100;
 }
 
 header > * {

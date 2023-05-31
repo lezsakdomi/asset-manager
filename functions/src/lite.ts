@@ -3,8 +3,22 @@ import * as express from "express";
 import * as cookieParser from 'cookie-parser';
 import {getAuth, signInWithEmailAndPassword, User} from "@firebase/auth";
 import * as AsyncLock from 'async-lock';
-import {collection, doc, getDoc, getDocs, getFirestore, query, where} from "@firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    getFirestore,
+    orderBy,
+    query,
+    serverTimestamp,
+    updateDoc,
+    where,
+    writeBatch
+} from "@firebase/firestore";
 import {initializeApp} from "@firebase/app";
+import {ulid} from "ulid";
+import {getFunctions, httpsCallable} from "@firebase/functions";
 
 export const app = express();
 
@@ -37,16 +51,20 @@ app.use('/logout', (req, res) => {
 })
 
 app.use(cookieParser())
+
+function getLoginUrl(path: string) {
+    return path
+            .replace(/^\/+/, '')
+            .replace(/[^\/]+|(?<=\/)$/g, '..')
+            .replace(/[^\/]+$/, '')
+        + 'login'
+        + '?redirect=' + encodeURIComponent(path.replace(/^\//, ''))
+}
+
 app.use((req, res, next) => {
     let {credentials} = req.cookies;
     if (!credentials) {
-        const url = req.path
-            .replace(/^\/+/, '')
-            .replace(/[^\/]+/g, '..')
-            .replace(/[^\/]+\/?$/, '')
-            + 'login'
-            + '?redirect=' + encodeURIComponent(req.path.replace(/^\//, ''))
-        res.redirect(url)
+        res.redirect(getLoginUrl(req.path))
         return;
     }
 
@@ -79,7 +97,7 @@ const lock = new AsyncLock()
 const AUTH = 'auth';
 async function performAuthenticated(credentials: Credentials, f: (user: User) => Promise<void>) {
     const auth = getAuth()
-    lock.acquire(AUTH, async () => {
+    await lock.acquire(AUTH, async () => {
         const {user} = await signInWithEmailAndPassword(auth, credentials.email, credentials.password)
         try {
             await f(user)
@@ -95,7 +113,12 @@ function op(f: (user: User, req: express.Request, res: express.Response, next: e
     }
 }
 
-app.get('/', op(async (user, req, res, next) => {
+// here wrapping in `op` is not needed, but it's good to get errors ASAP
+app.get('/', op(async (user, req, res) => {
+    res.render('index')
+}))
+
+app.get('/assets/', op(async (user, req, res, next) => {
     const db = getFirestore()
     const assetsQs = await getDocs(query(collection(db, 'assets'), where('available', '==', true)))
     const assetPromises = assetsQs.docs.map(async qds => {
@@ -114,18 +137,86 @@ app.get('/', op(async (user, req, res, next) => {
 }))
 
 app.get('/assets/:asset', op(async (user, req, res) => {
+    const assetId = req.params.asset;
+
     const db = getFirestore()
-    const ds = await getDoc(doc(db, 'assets', req.params.asset))
+    const ds = await getDoc(doc(db, 'assets', assetId))
     const asset = ds.data()
     const ownerDs = asset && asset.latestOwnerId && await getDoc(doc(db, 'assets', ds.id, 'owners', asset.latestOwnerId));
     const ownerUserDs = ownerDs && ownerDs.exists() && await getDoc(doc(db, 'users', ownerDs.data().uid));
     const baseUserDs = asset && asset.baseUid && await getDoc(doc(db, 'users', asset.baseUid));
+    const userDs = await getDoc(doc(db, 'users', user.uid));
     res.render('asset', {
-        user,
-        assetId: req.query.asset,
+        user: userDs.data(),
+        assetId,
         asset,
         owner: ownerDs && ownerDs.exists() && ownerDs.data(),
         ownerUser: ownerUserDs && ownerUserDs.exists() && ownerUserDs.data(),
         baseUser: baseUserDs && baseUserDs.exists() && baseUserDs.data(),
     })
 }))
+
+for (const field of ['owner', 'base']) {
+    app.get('/assets/:asset/edit/' + field, op(async (user, req, res) => {
+        const db = getFirestore()
+        const usersQs = await getDocs(query(collection(db, 'users'), orderBy('displayName')))
+        res.render('editAssetUser', {
+            users: usersQs.docs.reduce((a, ds) => ({...a, [ds.id]: ds.data()}), {}),
+            previousUid: req.query.previousUid,
+            assetId: req.params.asset,
+        })
+    }))
+}
+
+app.post('/assets/:asset/edit/owner', op(async (user, req, res) => {
+    const db = getFirestore()
+    const ownerId = ulid()
+    const batch = writeBatch(db)
+    batch.set(doc(db, 'assets', req.params.asset, 'owners', ownerId), {
+        uid: req.body.uid,
+        since: serverTimestamp(),
+    })
+    batch.update(doc(db, 'assets', req.params.asset), {
+        latestOwnerUid: req.body.uid,
+        latestOwnerId: ownerId,
+    })
+    await batch.commit()
+    res.redirect('../../' + req.params.asset)
+}))
+
+app.post('/assets/:asset/edit/base', op(async (user, req, res) => {
+    const db = getFirestore()
+    await updateDoc(doc(db, 'assets', req.params.asset), {
+        baseUid: req.body.uid
+    })
+    res.redirect('../../' + req.params.asset)
+}))
+
+app.get('/users/', op(async (user, req, res) => {
+    const db = getFirestore()
+    const usersQs = await getDocs(collection(db, 'users'))
+    const userDs = await getDoc(doc(db, 'users', user.uid));
+    res.render('users', {
+        user: userDs.data(),
+        users: usersQs.docs.reduce((a, ds) => ({...a, [ds.id]: ds.data()}), {}),
+    })
+}))
+
+app.get('/users/:uid/edit/:field', (req, res) => {
+    res.render('editUserField', {previousValue: req.query.previousValue})
+})
+
+app.post('/users/:uid/edit/:field', op(async (user, req, res) => {
+    await httpsCallable(getFunctions(), 'editUserField')({
+        uid: req.params.uid,
+        field: req.params.field,
+        value: req.body.value || null,
+    })
+    res.redirect('../..')
+}))
+
+app.use((err, req, res, next) => {
+    console.error(err)
+    res.status(500)
+    res.render('error', {err, loginUrl: getLoginUrl(req.path)})
+})

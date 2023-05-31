@@ -1,0 +1,41 @@
+style.
+    button {
+        float: right;
+        margin-left: 5px;
+    }
+
+    table {
+        background: lightgray;
+    }
+
+    tr {
+        background: #EEE;
+    }
+
+    tr:nth-child(2n) {
+        background: whitesmoke;
+    }
+
+main
+    h1 KanyaRent users
+    table
+        tr
+            th Name
+            th Email
+            th Phone number
+            th Address
+        each targetUser, targetUid in users
+            tr
+                mixin field(fieldName)
+                    td
+                        if fieldName in targetUser
+                            span= targetUser[fieldName]
+                        else
+                            i none
+                        if user && user.customClaims && user.customClaims.admin
+                            a(href=`users/${targetUid}/edit/${fieldName}` + (targetUser[fieldName] ? `?previousValue=${encodeURIComponent(targetUser[fieldName])}` : ""))
+                                button Edit
+                +field('displayName')
+                +field('email')
+                +field('phoneNumber')
+                +field('address')
