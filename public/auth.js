@@ -189,7 +189,7 @@ setInterval(() => {
         [...e.childNodes].filter(n => n instanceof Text).forEach(n =>
             n.textContent = n.textContent.replace(
                 "Trouble signing in?",
-                "Jelszó módosítás"
+                "Elfelejtett jelszó"
             )
         )
     )

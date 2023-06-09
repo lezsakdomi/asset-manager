@@ -75,6 +75,7 @@
         </div>
     </div>
     <a class="if-authenticated" onclick="auth.signOut().then(() => location.reload())">Kijelentkezés</a>
+    <a class="if-authenticated" onclick="firebase.auth().sendPasswordResetEmail(auth.currentUser && auth.currentUser.email || prompt('Milyen email-címmel szerepelsz a rendszerünkben?')).then(() => alert('A jelszó megváltoztatásához szükséges instrukciókat elküldtük emailben.'), e => {alert(e.message); throw e;})">Jelszó változtatás</a>
     <span id="auth-load-error" style="display: none">
         <h1>Betöltés</h1>
         <p>Várakozás az authentikációs modul betöltésére...</p>
