@@ -41,7 +41,7 @@ service cloud.firestore {
         }
 
         match /assets/{assetId} {
-            function checkAssetUpdate(request, resource) {
+            function checkAssetOwnerChange(request, resource) {
                 let newOwnerId = request.resource.data['latestOwnerId'];
                 let newOwnerRef = /databases/$(database)/documents/assets/$(assetId)/owners/$(newOwnerId);
                 let newOwner = getAfter(newOwnerRef);
@@ -52,8 +52,14 @@ service cloud.firestore {
                     && newOwner.data['since'] == request.time;
             }
 
+            function checkAssetBaseChange(request, resource) {
+                return authenticated(request)
+                    && isAdmin(request.auth.uid)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['baseUid']);
+            }
+
             allow read: if authenticated(request);
-            allow update: if checkAssetUpdate(request, resource);
+            allow update: if checkAssetOwnerChange(request, resource) || checkAssetBaseChange(request, resource);
 
             function assetRef() {
                 return /databases/$(database)/documents/assets/$(assetId)
