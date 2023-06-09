@@ -33,7 +33,7 @@ main
                         else
                             i none
                         if user && user.customClaims && user.customClaims.admin
-                            a(href=`users/${targetUid}/edit/${fieldName}` + (targetUser[fieldName] ? `?previousValue=${encodeURIComponent(targetUser[fieldName])}` : ""))
+                            a(href=`${targetUid}/edit/${fieldName}` + (targetUser[fieldName] ? `?previousValue=${encodeURIComponent(targetUser[fieldName])}` : ""))
                                 button Edit
                 +field('displayName')
                 +field('email')
