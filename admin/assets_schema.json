@@ -1,0 +1,32 @@
+{
+  "fields": [
+    {
+      "name": "available",
+      "type": "boolean"
+    },
+    {
+      "name": "baseUid",
+      "type": "string"
+    },
+    {
+      "name": "description",
+      "type": "string"
+    },
+    {
+      "name": "latestOwnerId",
+      "type": "string"
+    },
+    {
+      "name": "latestOwnerUid",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "pictureUrl",
+      "type": "string"
+    }
+  ]
+}
