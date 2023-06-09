@@ -196,9 +196,17 @@ app.get('/users/', op(async (user, req, res) => {
     const db = getFirestore()
     const usersQs = await getDocs(collection(db, 'users'))
     const userDs = await getDoc(doc(db, 'users', user.uid));
+    let systemUsers: User[] | undefined;
+    if (userDs.exists() && userDs.data().customClaims && userDs.data().customClaims.admin) {
+        const {data} = await httpsCallable<unknown, {
+            users: User[];
+        }>(getFunctions(), 'listAllUsers')()
+        systemUsers = data.users;
+    }
     res.render('users', {
         user: userDs.data(),
         users: usersQs.docs.reduce((a, ds) => ({...a, [ds.id]: ds.data()}), {}),
+        systemUsers: systemUsers.reduce((a, u) => ({...a, [u.uid]: u}), {}),
     })
 }))
 

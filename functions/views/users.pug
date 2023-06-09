@@ -1,5 +1,5 @@
 style.
-    button {
+    table button {
         float: right;
         margin-left: 5px;
     }
@@ -16,14 +16,25 @@ style.
         background: whitesmoke;
     }
 
+    li > div {
+        display: block;
+    }
+
+    li {
+        margin-bottom: 0.5em;
+    }
+
 main
     h1 KanyaRent users
+    h2 Users in database
     table
         tr
             th Name
             th Email
             th Phone number
             th Address
+            if systemUsers
+                th Can log in
         each targetUser, targetUid in users
             tr
                 mixin field(fieldName)
@@ -39,3 +50,24 @@ main
                 +field('email')
                 +field('phoneNumber')
                 +field('address')
+                if systemUsers
+                    td
+                        if !systemUsers[targetUid]
+                            | 👻 #[a(href="https://console.firebase.google.com/u/0/project/lakoparki-eszkozok/authentication/users") Not exists]
+                        else if systemUsers[targetUid].disabled
+                            | ❎ #[a(href="https://console.firebase.google.com/u/0/project/lakoparki-eszkozok/authentication/users") Disabled]
+                        else
+                            | ✅ Can log in
+    if systemUsers
+        h2 Users without an associated document
+        - var cnt = 0
+        ul
+            each targetUser, targetUid in users
+                if !users[targetUid]
+                    - cnt++
+                    li
+                        div: b= targetUser.displayName
+                        div: code= targetUid
+                        div: button(disabled) Create document
+        if cnt === 0
+            p ✔️ Everyone who can log in has a complete profile

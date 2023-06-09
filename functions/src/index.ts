@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {app} from "./lite";
 import * as admin from 'firebase-admin';
 import {raw} from "express";
+import {CallableContext} from "firebase-functions/lib/common/providers/https";
 
 admin.initializeApp()
 
@@ -24,7 +25,7 @@ export const onUserDelete = functions.auth.user().onDelete(async (user, context)
     await admin.firestore().collection('users').doc(user.uid).delete()
 })
 
-export const editUserField = functions.https.onCall(async (data, context) => {
+async function httpsAssertAdmin(context: CallableContext) {
     if (!context.auth) {
         throw new functions.https.HttpsError(
             'failed-precondition',
@@ -32,6 +33,7 @@ export const editUserField = functions.https.onCall(async (data, context) => {
         );
     }
 
+    console.log(context.auth.uid)
     const userDs = await admin.firestore().collection('users').doc(context.auth.uid).get()
     if (!userDs.exists) {
         throw new functions.https.HttpsError(
@@ -46,8 +48,28 @@ export const editUserField = functions.https.onCall(async (data, context) => {
             'The authenticated user must have admin privileges set in Firestore.'
         );
     }
+}
+
+export const editUserField = functions.https.onCall(async (data, context) => {
+    await httpsAssertAdmin(context);
 
     await admin.auth().updateUser(data.uid, {[data.field]: data.value || null})
     const targetUserDr = admin.firestore().collection('users').doc(data.uid);
     await targetUserDr.update(data.field, data.value || admin.firestore.FieldValue.delete())
+})
+
+export const listAllUsers = functions.https.onCall(async (data, context) => {
+    await httpsAssertAdmin(context);
+
+    const users = [];
+    let pageToken = undefined;
+    do {
+        const result = await admin.auth().listUsers(1000, pageToken);
+        users.push(...result.users);
+        pageToken = result.pageToken;
+    } while (pageToken);
+
+    console.log(users)
+
+    return {users};
 })
