@@ -95,6 +95,7 @@ export const authenticated = Promise.all([
     if (await initialAuthState) {
         return initialAuthState;
     } else {
+        window.firebase.auth().languageCode = 'hu';
         await window.firebase.auth().setPersistence(window.firebase.auth.Auth.Persistence.SESSION);
         return new Promise((resolve, reject) => {
             const ui = new window.firebaseui.auth.AuthUI(window.firebase.auth());
