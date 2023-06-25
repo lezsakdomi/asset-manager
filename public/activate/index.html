@@ -17,8 +17,13 @@
         .unless-activated {
             display: none;
         }
+        .when-terms-accepted {
+            display: none;
+        }
+        .unless-terms-accepted {
+            display: none;
+        }
     </style>
-    <style id="activate-style"></style>
 </head>
 <body>
 
@@ -28,23 +33,23 @@
         <h3>A fiókod aktiválásához jelentkezz be!</h3>
     </div>
     <div class="if-authenticated">
+        <p class="unless-activated">GDPR: A fiókod aktiválásával elfogadod az alábbiakat:</p>
+        <p class="when-activated">GDPR: A fiókod aktiválásával elfogadtad az alábbiakat:</p>
+        <ul>
+            <li>Az itt felhasznált adataidat a <a class="link" href="https://firebase.google.com/support/privacy">Google szerverein</a> tároljuk</li>
+            <li>A használata közben felmerült hibákat a <a class="link" href="https://sentry.io/trust/privacy/">Sentry segítésével</a> tároljuk</li>
+            <li>Az itt kezelt adataidat az összes tag és a fejlesztő (Lezsák Domonkos) láthatja</li>
+            <li>
+                Az itt kezelt adataid törléséhez, kiadásához keresd
+                az adminisztrátort (<a class="link" href="mailto:csaba.paszternak@t-online.hu">Paszternák Csaba</a>)
+                vagy a fejlesztőt (<a class="link" href="mailto:domonkos@lezsak.hu">Lezsák Domonkos</a>)
+            </li>
+        </ul>
+        <a id="activate-button" class="unless-activated">Elfogadom és aktiválom a fiókomat</a>
         <span class="when-activated">
-            <p>A fiókod aktív</p>
+            <p>A fiókod aktív.</p>
+            <a href="/accept-terms" class="unless-terms-accepted">Tovább a felhasználási feltételekhez</a>
             <a id="back-home-button" href="/">Vissza a kezdőoldalra</a>
-        </span>
-        <span class="unless-activated">
-            <p>GDPR: A fiókod aktiválásával elfogadod az alábbiakat:</p>
-            <ul>
-                <li>Az itt felhasznált adataidat a <a class="link" href="https://firebase.google.com/support/privacy">Google szerverein</a> tároljuk</li>
-                <li>A használata közben felmerült hibákat a <a class="link" href="https://sentry.io/trust/privacy/">Sentry segítésével</a> tároljuk</li>
-                <li>Az itt kezelt adataidat az összes tag és a fejlesztő (Lezsák Domonkos) láthatja</li>
-                <li>
-                    Az itt kezelt adataid törléséhez, kiadásához keresd
-                    az adminisztrátort (<a class="link" href="mailto:csaba.paszternak@t-online.hu">Paszternák Csaba</a>)
-                    vagy a fejlesztőt (<a class="link" href="mailto:domonkos@lezsak.hu">Lezsák Domonkos</a>)
-                </li>
-            </ul>
-            <a id="activate-button">Elfogadom és aktiválom a fiókomat</a>
         </span>
     </div>
     <div id="firebaseui-auth-container"></div>

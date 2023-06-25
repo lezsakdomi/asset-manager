@@ -57,7 +57,7 @@
     <div class="if-unauthenticated">
         <h3>Az eszköz átvételéhez jelentkezz be!</h3>
     </div>
-    <div class="if-authenticated when-member when-activated">
+    <div class="if-authenticated when-member when-activated when-terms-accepted">
         <span id="asset-container"></span>
         <div id="loader">
             <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
@@ -67,6 +67,10 @@
     <p class="when-member unless-activated">
         A fiókod nem aktív.
         <a href="/activate">Aktiválom</a>
+    </p>
+    <p class="when-member unless-terms-accepted">
+        A felhasználási feltételek elfogadása még rád vár.
+        <a href="/accept-terms">Megnézem</a>
     </p>
     <p class="unless-member">
         A kölcsönzőt csak az egyesület tagjai használhatják. Keresd fel a rendszer adminisztrátorát!

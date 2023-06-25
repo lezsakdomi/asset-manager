@@ -5,7 +5,7 @@ import "./firebaseApp.js";
 import {collection, doc, onSnapshot, getDoc} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
 import {onAuthStateChanged} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
-function updateStyle({authenticated, registered, activated, member}) {
+function updateStyle({authenticated, registered, activated, termsAccepted, member}) {
     const styleElement = document.getElementById('auth-style');
     if (styleElement) {
         styleElement.innerHTML = (authenticated === undefined ? `
@@ -35,6 +35,20 @@ function updateStyle({authenticated, registered, activated, member}) {
 }
 .unless-activated {
     display: ${!activated ? 'initial' : 'none !important'};
+}
+`) + (termsAccepted === undefined ? `
+.when-terms-accepted {
+    display: none;
+}
+.unless-terms-accepted {
+    display: none;
+}
+` : `
+.when-terms-accepted {
+    display: ${termsAccepted ? 'initial' : 'none !important'};
+}
+.unless-terms-accepted {
+    display: ${!termsAccepted ? 'initial' : 'none !important'};
 }
 `) + (registered === undefined ? `
 .when-registered {
@@ -140,8 +154,8 @@ export const authenticated = Promise.all([
     return new Promise((resolve, reject) => {
         onSnapshot(doc(collection(db, 'users'), user.uid), dss => {
             if (dss.data()) {
-                const {customClaims: {activated = false} = {}} = dss.data();
-                updateStyle({authenticated: true, member: true, activated, registered: true});
+                const {customClaims: {activated = false, termsAccepted = false} = {}} = dss.data();
+                updateStyle({authenticated: true, member: true, activated, termsAccepted, registered: true});
                 resolve()
             } else {
                 updateStyle({authenticated: true, registered: false});

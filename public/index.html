@@ -58,6 +58,10 @@
         A fiókod nem aktív.
         <a href="/activate">Aktiválom</a>
     </p>
+    <p class="when-member unless-terms-accepted">
+        A felhasználási feltételek elfogadása még rád vár.
+        <a href="/accept-terms">Felhasználási feltételek</a>
+    </p>
     <p class="unless-member">
         Nem vagy tagja az egyesületnek. Ha befizetted a tagdíjat, keresd fel a rendszer adminisztrátorát!
         <a href="mailto:csaba.paszternak@t-online.hu">📧 Email</a>
@@ -66,7 +70,7 @@
         A rendszert csak egyesületi tagok használhatják. Regisztráláshoz keresd fel a rendszer adminisztrátorát!
         <a href="mailto:csaba.paszternak@t-online.hu">📧 Email</a>
     </p>
-    <div class="if-authenticated when-member when-activated">
+    <div class="if-authenticated when-member when-activated when-terms-accepted">
         <input type="checkbox" id="only-my-assets" checked>
         <label for="only-my-assets">Csak a nálam lévők mutatása</label>
         <ul id="assets"></ul>

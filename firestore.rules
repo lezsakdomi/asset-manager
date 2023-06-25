@@ -6,7 +6,7 @@ service cloud.firestore {
             let userData = get(userRef).data;
             let claims = userData['customClaims'];
             return 'activated' in claims && claims['activated']
-//                && 'member' in claims && claims['member']
+                && 'termsAccepted' in claims && claims['termsAccepted']
         }
 
         function isAdmin(uid) {
@@ -35,8 +35,8 @@ service cloud.firestore {
             allow update: if request.auth.uid == userId
                 && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customClaims'])
                 && ('customClaims' in resource.data
-                    ? request.resource.data['customClaims'].diff(resource.data['customClaims']).affectedKeys().hasOnly(['activated'])
-                    : request.resource.data['customClaims'].keys().hasOnly(['activated'])
+                    ? request.resource.data['customClaims'].diff(resource.data['customClaims']).affectedKeys().hasOnly(['activated', 'termsAccepted'])
+                    : request.resource.data['customClaims'].keys().hasOnly(['activated', 'termsAccepted'])
                 );
         }
 
