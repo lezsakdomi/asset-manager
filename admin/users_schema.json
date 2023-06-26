@@ -29,6 +29,10 @@
           "type": "boolean"
         },
         {
+          "name": "termsAccepted",
+          "type": "boolean"
+        },
+        {
           "name": "admin",
           "type": "boolean"
         }

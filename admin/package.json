@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "schemas:create:users": "npx @firebaseextensions/fs-bq-schema-views --non-interactive --project=lakoparki-eszkozok --dataset=firestore_export --table-name-prefix=users --schema-files=./users_schema.json"
   },
   "author": "",
   "license": "ISC",
